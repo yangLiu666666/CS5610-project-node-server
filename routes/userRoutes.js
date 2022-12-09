@@ -40,7 +40,15 @@ router.post('/add-favorites', authUser, async(req, res)=> {
     const user = req.user;
     user.favorites.push(mealId);
     await user.save();
-    res.status(200).send()
+    res.status(200).send(user)
+})
+
+router.post('/remove-favorites', authUser, async(req, res)=> {
+    const {mealId} = req.body;
+    const user = req.user;
+    user.favorites = user.favorites.filter(id => id !== mealId);
+    await user.save();
+    res.status(200).send(user)
 })
 
 module.exports = router;
