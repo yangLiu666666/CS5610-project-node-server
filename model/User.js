@@ -37,6 +37,7 @@ userSchema.statics.findByCredentials = async function(email, password) {
     if(!passwordMatch) {
         throw new Error('Invalid credentials')
     }
+    //if there is a match
     return user;
 }
 

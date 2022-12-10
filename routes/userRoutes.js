@@ -1,16 +1,48 @@
 const router = require('express').Router();
-const User = require('../model/userModel')
-const authUser = require('../authUser');
+const User = require('../model/User')
+const authUser = require('../middleware/authUser');
+
+//User Creation
 router.post('/users', async (req, res) => {
+    // const {email, password} = req.body;
     try {
         const user = await User.create(req.body);
         await user.generateToken();
         res.send(user)
     } catch(e) {
-        console.log(e)
-        res.status(500).send()
+        // console.log(e)
+        // res.status(500).send()
+        let msg;
+        if (e.code === 11000) {
+            msg = 'Email already exists'
+        } else {
+            msg = e.message;
+        }
+            // console.log(e);
+            // res.status(500).send();
+        res.status(500).json(msg);
     }
+    // try {
+    //     const user = await User.create({email, password});
+    //     await user.generateToken();
+    //     // res.send(user)
+    //     res.status(200).send();
+    // } catch(e) {
+    //     // console.log(e)
+    //     // res.status(500).send()
+    //     let msg;
+    //     if (e.code === 11000) {
+    //         msg = 'Email already exists'
+    //     } else {
+    //         msg = e.message;
+    //     }
+    //     // console.log(e);
+    //     // res.status(500).send();
+    //     res.status(500).json(msg);
+    // }
 })
+
+//Login
 router.post('/login', async(req, res)=> {
     const {email, password} = req.body;
     try {
