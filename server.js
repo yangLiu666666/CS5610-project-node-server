@@ -12,6 +12,9 @@ app.use(userRoutes);
 app.use(likeRoutes);
 app.use(commentRoutes);
 
+app.get('/', (req, res) => {
+    res.send('Hello from Node.js!!')
+})
 app.listen(process.env.PORT || 4000, ()=>{
     console.log('Server running at 4000');
 })
