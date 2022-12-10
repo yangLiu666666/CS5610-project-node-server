@@ -15,7 +15,7 @@ const authUser = async (req, res, next)=> {
         next();
     } catch(e) {
         console.log(e);
-        res.status(500).send();
+        res.status(403).send("You are not authorized, please login");
     }
 }
 

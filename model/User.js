@@ -14,8 +14,18 @@ const userSchema = new mongoose.Schema({
     token: {
         type: String
     },
-    favorites: {
-        type: [String]
+    followers: {
+        type:[String]
+    },
+    followings: {
+        type:[String]
+    },
+    role: {
+        type: String
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 })
 
@@ -25,7 +35,6 @@ userSchema.pre('save', async function(next){
         user.password = await bcrypt.hashSync(user.password, 10);
     }
     next();
-
 })
 
 userSchema.statics.findByCredentials = async function(email, password) {
@@ -36,6 +45,9 @@ userSchema.statics.findByCredentials = async function(email, password) {
     const passwordMatch = await bcrypt.compareSync(password, user.password)
     if(!passwordMatch) {
         throw new Error('Invalid credentials')
+    }
+    if (!user.isActive) {
+        throw new Error("You are blocked")
     }
     //if there is a match
     return user;
@@ -49,6 +61,7 @@ userSchema.methods.generateToken = async function(){
     await user.save();
     return token;
 }
+
 // Remove the information that we don't want to send
 userSchema.methods.toJSON = function() {
     const user = this;

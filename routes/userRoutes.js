@@ -4,42 +4,20 @@ const authUser = require('../middleware/authUser');
 
 //User Creation
 router.post('/users', async (req, res) => {
-    // const {email, password} = req.body;
+    const {email, password, role} = req.body;
     try {
-        const user = await User.create(req.body);
+        const user = await User.create({email, password, role});
         await user.generateToken();
         res.send(user)
     } catch(e) {
-        // console.log(e)
-        // res.status(500).send()
         let msg;
         if (e.code === 11000) {
             msg = 'Email already exists'
         } else {
             msg = e.message;
         }
-            // console.log(e);
-            // res.status(500).send();
-        res.status(500).json(msg);
+        res.status(500).send(msg);
     }
-    // try {
-    //     const user = await User.create({email, password});
-    //     await user.generateToken();
-    //     // res.send(user)
-    //     res.status(200).send();
-    // } catch(e) {
-    //     // console.log(e)
-    //     // res.status(500).send()
-    //     let msg;
-    //     if (e.code === 11000) {
-    //         msg = 'Email already exists'
-    //     } else {
-    //         msg = e.message;
-    //     }
-    //     // console.log(e);
-    //     // res.status(500).send();
-    //     res.status(500).json(msg);
-    // }
 })
 
 //Login
@@ -63,23 +41,53 @@ router.post('/logout', authUser, async (req, res)=> {
     const user = req.user;
     user.token = '';
     await user.save();
-    res.status(200).send()
+    res.status(200).send("successful")
 })
 
-router.post('/add-favorites', authUser, async(req, res)=> {
-    const {mealId} = req.body;
-    console.log(req.body)
-    const user = req.user;
-    user.favorites.push(mealId);
-    await user.save();
-    res.status(200).send(user)
+router.post('/:uidA/follow/:uidB', authUser, async(req, res) => {
+    const uidA = req.params['uidA']
+    const uidB = req.params['uidB']
+    const userA = await User.findOne({_id: uidA})
+    const userB = await User.findOne({_id: uidB})
+    if (!userA || !userB) {
+        throw new Error("User does not exist")
+    }
+    userA.followings.push(uidB);
+    userB.followers.push(uidA);
+    console.log(userA, userB)
+    const result = await userA.save();
+    await userB.save();
+    res.status(200).send(result)
 })
 
-router.post('/remove-favorites', authUser, async(req, res)=> {
-    const {mealId} = req.body;
-    const user = req.user;
-    user.favorites = user.favorites.filter(id => id !== mealId);
-    await user.save();
+router.get('/users/:uid/followers', authUser, async (req, res) => {
+    const uid = req.params['uid']
+    const user = await User.findOne({_id: uid})
+    let followers = await User.find({_id: user.followers })
+    followers = followers.map((u)=> {
+        u.token = null;
+        return u;
+    })
+    res.status(200).send(followers)
+
+})
+
+router.get('/users/:uid/followings', authUser, async (req, res) => {
+    const uid = req.params['uid']
+    const user = await User.findOne({_id: uid})
+    let followings = await User.find({_id: user.followings })
+    followings = followings.map((u)=> {
+        u.token = null;
+        return u;
+    })
+    res.status(200).send(followings)
+})
+
+router.get('/users/:uid', authUser, async (req, res) => {
+    const uid = req.params['uid'];
+    const user = await User.findOne({_id: uid})
+    // delete user.password;
+    user.token = null;
     res.status(200).send(user)
 })
 
