@@ -5,17 +5,18 @@ const authUser = require('../middleware/authUser');
 router.post('/comments', authUser, async(req, res)=> {
     const {mealId, comment} = req.body;
     const user = req.user;
-    const newComment = {uid: user._id, content: comment, date: new Date()}
+    const newComment = {uid: user._id, content: comment, name: user.name, date: new Date()}
     let meal = await Comment.findOne({mealId})
     if (!meal) {
         meal = await Comment.create({mealId});
     }
-    if (meal.comment) {
+    if (!meal.comment) {
         meal.comment = [newComment];
     } else {
         meal.comment.push(newComment)
     }
     const result = await meal.save();
+    //return whole meal
     res.status(200).send(result)
 })
 

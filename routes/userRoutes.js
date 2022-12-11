@@ -4,9 +4,9 @@ const authUser = require('../middleware/authUser');
 
 //User Creation
 router.post('/users', async (req, res) => {
-    const {email, password, role} = req.body;
+    const {email, password, role, name, country} = req.body;
     try {
-        const user = await User.create({email, password, role});
+        const user = await User.create({email, password, role, name, country});
         await user.generateToken();
         res.send(user)
     } catch(e) {
@@ -34,12 +34,14 @@ router.post('/login', async(req, res)=> {
 })
 
 router.post('/auto-login', authUser, async(req, res)=> {
-    res.send(req.user)
+    // req.user.toObject()
+    res.send(req.user.toObject())
 })
 
 router.post('/logout', authUser, async (req, res)=> {
     const user = req.user;
     user.token = '';
+    // await user.save(function(){});
     await user.save();
     res.status(200).send("successful")
 })
@@ -89,6 +91,22 @@ router.get('/users/:uid', authUser, async (req, res) => {
     // delete user.password;
     user.token = null;
     res.status(200).send(user)
+})
+
+router.delete('/:uidA/follow/:uidB', authUser, async (req, res)=> {
+    const uidA = req.params['uidA']
+    const uidB = req.params['uidB']
+    const userA = await User.findOne({_id: uidA})
+    const userB = await User.findOne({_id: uidB})
+    if (!userA || !userB) {
+        throw new Error("User does not exist")
+    }
+    userA.followings.remove(uidB);
+    userB.followers.remove(uidA);
+    console.log(userA, userB)
+    const result = await userA.save();
+    await userB.save();
+    res.status(200).send(result)
 })
 
 module.exports = router;

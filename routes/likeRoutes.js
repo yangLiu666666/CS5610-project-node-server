@@ -6,14 +6,14 @@ router.post('/likes', authUser, async(req, res)=> {
     const {mealId} = req.body;
     const user = req.user;
     const like = await Like.create({uid: user._id, mealId});
-    res.status(200).send("successful")
+    res.status(200).send(like)
 })
 
 router.delete('/dislikes', authUser, async(req, res)=> {
     const {mealId} = req.body;
     const user = req.user;
     const like = await Like.remove({uid: user._id, mealId});
-    res.status(200).send("successful")
+    res.status(200).send(like)
 })
 
 router.get('/users/:uid/likes',authUser, async(req, res)=> {

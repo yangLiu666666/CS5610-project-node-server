@@ -7,9 +7,16 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    name: {
+        type: String,
+        required:true
+    },
     password: {
         type: String,
         required: true
+    },
+    country: {
+        type: String
     },
     token: {
         type: String
@@ -67,7 +74,7 @@ userSchema.methods.toJSON = function() {
     const user = this;
     const userObject = user.toObject();
     delete userObject.password;
-    delete userObject._id;
+    // delete userObject._id;
     return userObject;
 }
 const User = mongoose.model('User', userSchema);
