@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Comment = require('../model/Comment')
 const authUser = require('../middleware/authUser');
+const mongoose = require("mongoose");
 
 router.post('/comments', authUser, async(req, res)=> {
     const {mealId, comment} = req.body;

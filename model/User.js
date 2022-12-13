@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
+// const RoleType = require("./RoleType");
+
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -28,6 +30,7 @@ const userSchema = new mongoose.Schema({
         type:[String]
     },
     role: {
+        // type: RoleType
         type: String
     },
     isActive: {

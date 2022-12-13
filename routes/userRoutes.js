@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const User = require('../model/User')
 const authUser = require('../middleware/authUser');
+const Comment = require('../model/Comment')
 
 //User Creation
 router.post('/users', async (req, res) => {
@@ -41,7 +42,6 @@ router.post('/auto-login', authUser, async(req, res)=> {
 router.post('/logout', authUser, async (req, res)=> {
     const user = req.user;
     user.token = '';
-    // await user.save(function(){});
     await user.save();
     res.status(200).send("successful")
 })
@@ -92,7 +92,14 @@ router.get('/users/:uid', authUser, async (req, res) => {
     user.token = null;
     res.status(200).send(user)
 })
-
+router.get('/users/:uid/comments', authUser, async(req, res) => {
+    const uid = req.params['uid'];
+    const user = await User.findOne({_id: uid})
+    // const comments = await Comment.findOne({uid});
+    // res.status(200).send(comments)
+    let comments = await Comment.find({ uid: user._id })
+    res.status(200).send(comments)
+})
 router.delete('/:uidA/follow/:uidB', authUser, async (req, res)=> {
     const uidA = req.params['uidA']
     const uidB = req.params['uidB']
