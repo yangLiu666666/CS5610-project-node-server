@@ -92,11 +92,26 @@ router.get('/users/:uid', authUser, async (req, res) => {
     user.token = null;
     res.status(200).send(user)
 })
+
+router.delete('/users/:uid', authUser, async(req, res) => {
+    const uid = req.params['uid'];
+    const user = await User.findOne({_id: uid})
+    const userObject = user.toObject();
+    delete userObject._id;
+    user.isActive = false;
+    res.status(200).send(user);
+})
+
+router.get('/users', authUser, async (req, res) => {
+    const uid = req.params['uid']
+    const user = await User.findById({_id: uid})
+    res.status(200).send(user)
+
+})
+
 router.get('/users/:uid/comments', authUser, async(req, res) => {
     const uid = req.params['uid'];
     const user = await User.findOne({_id: uid})
-    // const comments = await Comment.findOne({uid});
-    // res.status(200).send(comments)
     let comments = await Comment.find({ uid: user._id })
     res.status(200).send(comments)
 })
